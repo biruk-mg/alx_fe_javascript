@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
             saveQuotes();
             populateCategories();
             filterQuotes();
-            alert('Data synced with the server!');
+            alert('Quotes synced with server!');
         } catch (error) {
             console.error('Error syncing with server:', error);
         }
