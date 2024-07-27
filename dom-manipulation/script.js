@@ -59,12 +59,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const newQuoteCategory = document.getElementById('newQuoteCategory').value.trim();
 
         if (newQuoteText && newQuoteCategory) {
-            quotes.push({ text: newQuoteText, category: newQuoteCategory });
+            const newQuote = { text: newQuoteText, category: newQuoteCategory };
+            quotes.push(newQuote);
             saveQuotes();
             document.getElementById('newQuoteText').value = '';
             document.getElementById('newQuoteCategory').value = '';
             alert('Quote added successfully!');
             populateCategories();
+            sendQuoteToServer(newQuote);
         } else {
             alert('Please enter both quote text and category.');
         }
@@ -132,6 +134,22 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         return mergedQuotes;
+    }
+
+    async function sendQuoteToServer(quote) {
+        try {
+            const response = await fetch(SERVER_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(quote)
+            });
+            const data = await response.json();
+            console.log('Quote sent to server:', data);
+        } catch (error) {
+            console.error('Error sending quote to server:', error);
+        }
     }
 
     function startPeriodicSync(interval = 60000) {
