@@ -1,3 +1,5 @@
+const SERVER_URL = 'https://jsonplaceholder.typicode.com/posts';
+
 document.addEventListener('DOMContentLoaded', function() {
     let quotes = JSON.parse(localStorage.getItem('quotes')) || [
         { text: "The only limit to our realization of tomorrow is our doubts of today.", category: "Motivation" },
@@ -96,6 +98,41 @@ document.addEventListener('DOMContentLoaded', function() {
         fileReader.readAsText(event.target.files[0]);
     }
 
+    async function fetchServerQuotes() {
+        return fetch(SERVER_URL)
+            .then(response => response.json())
+            .then(data => data.map(post => ({ text: post.title, category: 'Server' })));
+    }
+
+    async function syncWithServer() {
+        try {
+            const serverQuotes = await fetchServerQuotes();
+            const localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
+            const mergedQuotes = mergeQuotes(localQuotes, serverQuotes);
+            quotes = mergedQuotes;
+            saveQuotes();
+            populateCategories();
+            filterQuotes();
+            alert('Data synced with the server!');
+        } catch (error) {
+            console.error('Error syncing with server:', error);
+        }
+    }
+
+    function mergeQuotes(localQuotes, serverQuotes) {
+        const mergedQuotes = [...localQuotes];
+        serverQuotes.forEach(serverQuote => {
+            if (!localQuotes.some(localQuote => localQuote.text === serverQuote.text)) {
+                mergedQuotes.push(serverQuote);
+            }
+        });
+        return mergedQuotes;
+    }
+
+    function startPeriodicSync(interval = 60000) {
+        setInterval(syncWithServer, interval);
+    }
+
     // Event listeners
     newQuoteBtn.addEventListener('click', showRandomQuote);
     addQuoteBtn.addEventListener('click', addQuote);
@@ -112,4 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (lastViewedQuote) {
         quoteDisplay.innerHTML = `<p>"${lastViewedQuote.text}"</p><p>- ${lastViewedQuote.category}</p>`;
     }
+
+    // Start periodic sync
+    startPeriodicSync();
 });
