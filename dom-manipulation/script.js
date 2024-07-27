@@ -98,15 +98,20 @@ document.addEventListener('DOMContentLoaded', function() {
         fileReader.readAsText(event.target.files[0]);
     }
 
-    async function fetchServerQuotes() {
-        return fetch(SERVER_URL)
-            .then(response => response.json())
-            .then(data => data.map(post => ({ text: post.title, category: 'Server' })));
+    async function fetchQuotesFromServer() {
+        try {
+            const response = await fetch(SERVER_URL);
+            const data = await response.json();
+            return data.map(post => ({ text: post.title, category: 'Server' }));
+        } catch (error) {
+            console.error('Error fetching quotes from server:', error);
+            return [];
+        }
     }
 
     async function syncWithServer() {
         try {
-            const serverQuotes = await fetchServerQuotes();
+            const serverQuotes = await fetchQuotesFromServer();
             const localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
             const mergedQuotes = mergeQuotes(localQuotes, serverQuotes);
             quotes = mergedQuotes;
