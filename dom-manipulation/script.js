@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    async function syncWithServer() {
+    async function syncQuotes() {
         try {
             const serverQuotes = await fetchQuotesFromServer();
             const localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function startPeriodicSync(interval = 60000) {
-        setInterval(syncWithServer, interval);
+        setInterval(syncQuotes, interval);
     }
 
     // Event listeners
